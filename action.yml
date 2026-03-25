@@ -18,9 +18,23 @@ runs:
             id: status
             shell: bash
             run: |
-                if [[ "${{ github.ref }}" != "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+                IS_VALID="false"
+
+                # Handle if the action is running via a 'workflow_run' trigger
+                if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+                    if [[ "${{ github.event.workflow_run.event }}" != "pull_request" ]] && \
+                       [[ "${{ github.event.workflow_run.head_branch }}" == "${{ github.event.repository.default_branch }}" ]]; then
+                        IS_VALID="true"
+                    fi
+                # Handle standard direct triggers (push, schedule, workflow_dispatch)
+                elif [[ "${{ github.event_name }}" != "pull_request" ]] && \
+                    [[ "${{ github.ref }}" == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+                    IS_VALID="true"
+                fi
+
+                if [[ "$IS_VALID" != "true" ]]; then
                     echo "status=none" >> $GITHUB_OUTPUT
-                    echo "Skipping badge generation: Not on the default branch."
+                    echo "Skipping badge generation: Not on the default branch or triggered by a PR."
                 elif [[ "${{ job.status }}" == "success" ]]; then
                     echo "status=passing" >> $GITHUB_OUTPUT
                 else
