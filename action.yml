@@ -84,8 +84,18 @@ runs:
                 cp $GITHUB_WORKSPACE/badge.svg status.svg
 
                 git add status.svg
+
+                if [[ "${{ github.event.repository.private }}" == "true" ]]; then
+                    echo "Private repository detected, using git tag workaround..."
+                    export GIT_AUTHOR_DATE="1970-01-01T00:00:00Z"
+                    export GIT_COMMITTER_DATE="1970-01-01T00:00:00Z"
+                    REF_NAMESPACE=refs/tags/badges
+                else
+                    REF_NAMESPACE=refs/badges
+                fi
+
                 git commit -m "update badge: ${{ steps.status.outputs.badge }} (${{ steps.status.outputs.status }})"
 
                 git push --force \
-                    https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git \
-                    HEAD:refs/badges/ci/${{ steps.status.outputs.badge }}
+                    "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
+                    "HEAD:${REF_NAMESPACE}/ci/${{ steps.status.outputs.badge }}"
