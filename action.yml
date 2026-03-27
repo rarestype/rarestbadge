@@ -20,7 +20,7 @@ runs:
             run: |
                 IS_VALID="false"
 
-                if [[ "${{ github.workflow }}" == "Deploy" ]]; then
+                if [[ "${{ github.workflow }}" == "Semantic release" ]]; then
                     IS_VALID="true"
                 elif [[ "${{ github.event_name }}" == "workflow_run" ]]; then
                     if [[ "${{ github.event.workflow_run.event }}" != "pull_request" ]] && \
