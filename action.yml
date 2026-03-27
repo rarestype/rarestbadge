@@ -30,6 +30,8 @@ runs:
                 elif [[ "${{ github.event_name }}" != "pull_request" ]] && \
                     [[ "${{ github.ref }}" == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
                     IS_VALID="true"
+                elif [[ "${{ github.workflow }}" == "Deploy" ]]; then
+                    IS_VALID="true"
                 fi
 
                 if [[ "$IS_VALID" != "true" ]]; then
